@@ -8,11 +8,13 @@
   import { iconCodepoints, type MaterialIcon } from "$/styles/mdi_icons";
   import { automation, connectionState, csvData, loadedFonts } from "$/stores";
   import {
+    type DynamicDataMode,
     type ExportedLabelTemplate,
     type FabricJson,
     type LabelProps,
     type MoveDirection,
     type OjectType,
+    type SpoolmanSpool,
   } from "$/types";
   import { FileUtils } from "$/utils/file_utils";
   import { tr } from "$/utils/i18n";
@@ -38,6 +40,8 @@
   import { CustomCanvas } from "$/fabric-object/custom_canvas";
   import VectorParamsControls from "$/components/designer-controls/VectorParamsControls.svelte";
   import { CanvasUtils } from "$/utils/canvas_utils";
+  import SpoolmanControl from "$/components/designer-controls/SpoolmanControl.svelte";
+  import SpoolmanSampleJson from "$/components/designer-controls/SpoolmanSampleJson.svelte";
 
   let htmlCanvas: HTMLCanvasElement;
 
@@ -49,6 +53,8 @@
   let editRevision = $state<number>(0);
   let printNow = $state<boolean>(false);
   let csvEnabled = $state<boolean>(false);
+  let dataMode = $state<DynamicDataMode>("none");
+  let selectedSpoolmanSpools = $state<SpoolmanSpool[]>([]);
   let windowWidth = $state<number>(0);
   let undoState = $state<UndoState>({ undoDisabled: false, redoDisabled: false });
 
@@ -242,6 +248,17 @@
     });
     fabricCanvas!.setActiveObject(obj);
     undo.push(fabricCanvas!, labelProps);
+  };
+
+  const onSpoolmanSelectionApplied = (spools: SpoolmanSpool[]) => {
+    selectedSpoolmanSpools = spools;
+
+    if (spools.length > 0) {
+      dataMode = "spoolman";
+      csvEnabled = false;
+    } else if (dataMode === "spoolman") {
+      dataMode = "none";
+    }
   };
 
   const onPaste = async (event: ClipboardEvent) => {
@@ -453,6 +470,14 @@
   });
 
   $effect(() => {
+    if (csvEnabled) {
+      dataMode = "csv";
+    } else if (dataMode === "csv") {
+      dataMode = "none";
+    }
+  });
+
+  $effect(() => {
     if ($loadedFonts) {
       renderOnFontsChanged();
     }
@@ -502,6 +527,10 @@
         </button>
 
         <CsvControl bind:enabled={csvEnabled} onPlaceholderPicked={onCsvPlaceholderPicked} />
+        <SpoolmanControl
+          active={dataMode === "spoolman"}
+          selectedSpools={selectedSpoolmanSpools}
+          onApply={onSpoolmanSelectionApplied} />
 
         <IconPicker onSubmit={onIconPicked} onSubmitSvg={onSvgIconPicked} />
 
@@ -566,12 +595,22 @@
     </div>
   </div>
 
+  {#if dataMode === "spoolman"}
+    <div class="row mb-2">
+      <div class="col">
+        <SpoolmanSampleJson />
+      </div>
+    </div>
+  {/if}
+
   {#if previewOpened}
     <PrintPreview
       bind:show={previewOpened}
       canvasCallback={getCanvasForPreview}
       {labelProps}
       {printNow}
+      {dataMode}
+      spoolmanData={selectedSpoolmanSpools}
       {csvEnabled}
       csvData={$csvData.data} />
   {/if}

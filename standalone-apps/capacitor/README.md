@@ -36,7 +36,7 @@ npm run build-android
 
 To see console, go to `chrome:inspect/#devices` on desktop chrome browser and select niimblue on your device.
 
-To get prebuilt apk, see the latest artifact in [build-android-app](https://github.com/MultiMote/niimblue/actions/workflows/build-android-app.yml) Actions task.
+To get prebuilt apk, see the latest artifact in [build-android-app](https://github.com/syuchan1005/niimblue-spoolman/actions/workflows/build-android-app.yml) Actions task.
 
 # iOS (experimental)
 

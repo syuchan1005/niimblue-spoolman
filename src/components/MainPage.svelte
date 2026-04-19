@@ -22,6 +22,7 @@
     <div class="col">
       <h1 class="title">
         <span class="niim">Niim</span><span class="blue">Blue{isStandalone ? "s" : ""}</span>
+        <span class="svg-icon spoolman" style="margin-left: 8px;"></span>
       </h1>
     </div>
     <div class="col-md-3">
@@ -51,7 +52,7 @@
   </div>
   <div>
     {#if appCommit}
-      <a class="text-secondary" href="https://github.com/MultiMote/niimblue/commit/{appCommit}">
+      <a class="text-secondary" href="https://github.com/syuchan1005/niimblue-spoolman/commit/{appCommit}">
         {appCommit.slice(0, 6)}
       </a>
     {/if}
@@ -59,7 +60,7 @@
     {buildDate}
   </div>
   <div>
-    <a class="text-secondary" href="https://github.com/MultiMote/niimblue">{$tr("main.code")}</a>
+    <a class="text-secondary" href="https://github.com/syuchan1005/niimblue-spoolman">{$tr("main.code")}</a>
     <button class="text-secondary btn btn-link p-0" onclick={() => debugStuffShow = true}>
       <MdIcon icon="bug_report" />
     </button>
@@ -71,12 +72,28 @@
 {/if}
 
 <style>
+  .title {
+    display: flex;
+    align-items: center;
+  }
+
   .niim {
     color: #ff5349;
   }
 
   .blue {
     color: #0b7eff;
+  }
+
+  .svg-icon {
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    background-size: cover;
+  }
+
+  .spoolman.svg-icon {
+    background-image: url("./assets/spoolman.svg");
   }
 
   .footer {

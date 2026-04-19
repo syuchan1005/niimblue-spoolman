@@ -13,6 +13,7 @@ export type LabelShape = "rect" | "rounded_rect" | "circle";
 export type LabelSplit = "none" | "vertical" | "horizontal";
 export type TailPosition = "right" | "bottom" | "left" | "top";
 export type MirrorType = "none" | "copy" | "flip";
+export type DynamicDataMode = "none" | "csv" | "spoolman";
 
 type _Range<T extends number, R extends unknown[]> = R["length"] extends T ? R[number] : _Range<T, [R["length"], ...R]>;
 
@@ -108,6 +109,12 @@ export const AppConfigSchema = z.object({
   packetIntervalMs: z.number().gte(0).optional(),
 });
 
+export const SpoolmanConfigSchema = z.object({
+  baseUrl: z.string(),
+  headerName: z.string().optional(),
+  headerValue: z.string().optional(),
+});
+
 export const UserIconSchema = z.object({
   name: z.string(),
   data: z.string(),
@@ -131,3 +138,25 @@ export type PreviewProps = z.infer<typeof PreviewPropsSchema>;
 export type AutomationProps = z.infer<typeof AutomationPropsSchema>;
 export type AppConfig = z.infer<typeof AppConfigSchema>;
 export type UserFont = z.infer<typeof UserFontSchema>;
+export type SpoolmanConfig = z.infer<typeof SpoolmanConfigSchema>;
+
+export interface SpoolmanVendor {
+  id?: number;
+  name?: string | null;
+  [key: string]: unknown;
+}
+
+export interface SpoolmanFilament {
+  id?: number;
+  name?: string | null;
+  material?: string | null;
+  vendor?: SpoolmanVendor | null;
+  [key: string]: unknown;
+}
+
+export interface SpoolmanSpool {
+  id: number;
+  archived: boolean;
+  filament?: SpoolmanFilament | null;
+  [key: string]: unknown;
+}

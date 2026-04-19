@@ -6,9 +6,9 @@
 
 Design and print labels right from your browser
 
-[FAQ](https://github.com/MultiMote/niimblue/wiki/Frequently-asked-questions) | [Discord](https://discord.gg/jXPAfZVd8a) | [Telegram](https://t.me/niimblue) |  [NIIMBOT Community Wiki](https://printers.niim.blue)
+[FAQ](https://github.com/syuchan1005/niimblue-spoolman/wiki/Frequently-asked-questions) | [Discord](https://discord.gg/jXPAfZVd8a) | [Telegram](https://t.me/niimblue) |  [NIIMBOT Community Wiki](https://printers.niim.blue)
 
-[NiimBlueLib](https://github.com/MultiMote/niimbluelib) is used for communication
+[NiimBlueLib](https://github.com/syuchan1005/niimblue-spoolmanlib) is used for communication
 
 Deployments:
 
@@ -27,12 +27,12 @@ Support project:
 * Support for both Bluetooth and USB connections.
 * Rich label editor. Label saving, import/export.
 * Print preview. You can see how your label will look like after post-processing. Several post-processing algorithms are available.
-* [Standalone apps](https://github.com/MultiMote/niimblue/releases):
+* [Standalone apps](https://github.com/syuchan1005/niimblue-spoolman/releases):
     - Android (Capacitor based)
     - Windows (Tauri based, uses Edge backed)
 * Most complete implementation of [NIIMBOT protocol](https://printers.niim.blue/interfacing/proto/).
 
-You can see more complete list of implemented and planned features [on the Wiki](https://github.com/MultiMote/niimblue/wiki#features).
+You can see more complete list of implemented and planned features [on the Wiki](https://github.com/syuchan1005/niimblue-spoolman/wiki#features).
 
 Demonstration video:
 
@@ -42,9 +42,9 @@ Demonstration video:
 
 There is no exact list of supported models in this project. This project aims to support the maximum number of models.
 
-You can check [a list of tested models here](https://github.com/MultiMote/niimbluelib/issues/1). If you own other model, please write a comment.
+You can check [a list of tested models here](https://github.com/syuchan1005/niimblue-spoolmanlib/issues/1). If you own other model, please write a comment.
 
-If your (new) printer model does not print, please make a [packet dump](https://github.com/MultiMote/niimblue/wiki/Making-packet-capture) of print with official application.
+If your (new) printer model does not print, please make a [packet dump](https://github.com/syuchan1005/niimblue-spoolman/wiki/Making-packet-capture) of print with official application.
 
 > [!NOTE]
 > If you have printing problems, try different print task versions in print preview dialog. Make if default by pressing "Lock" button.
@@ -114,7 +114,7 @@ Skip steps you have done.
 3. Clone repository
 
     ```bash
-    git clone https://github.com/MultiMote/niimblue.git
+    git clone https://github.com/syuchan1005/niimblue-spoolman.git
     ```
 
 4. Install dependencies
@@ -143,11 +143,11 @@ Here are some options. HTTPS is required for non-localhost deployments.
 
 #### Serving static files
 
-To get static files run `npm run build` (result builds to `dist`) or download `niimblue-dist.zip` from [Releases](https://github.com/MultiMote/niimblue/releases).
+To get static files run `npm run build` (result builds to `dist`) or download `niimblue-dist.zip` from [Releases](https://github.com/syuchan1005/niimblue-spoolman/releases).
 
 #### Using Docker Image
 
-Follow the instructions in the [wiki](https://github.com/MultiMote/niimblue/wiki/Running-own-instance-with-Docker).
+Follow the instructions in the [wiki](https://github.com/syuchan1005/niimblue-spoolman/wiki/Running-own-instance-with-Docker).
 
 ### IDE setup
 

@@ -13,7 +13,15 @@
     AbstractPrintTask,
     Utils,
   } from "@mmote/niimbluelib";
-  import type { LabelProps, PostProcessType, FabricJson, PreviewProps, PreviewPropsOffset } from "$/types";
+  import type {
+    DynamicDataMode,
+    FabricJson,
+    LabelProps,
+    PostProcessType,
+    PreviewProps,
+    PreviewPropsOffset,
+    SpoolmanSpool,
+  } from "$/types";
   import ParamLockButton from "$/components/basic/ParamLockButton.svelte";
   import { tr, type TranslationKey } from "$/utils/i18n";
   import { canvasPreprocess } from "$/utils/canvas_preprocess";
@@ -31,10 +39,21 @@
     printNow?: boolean;
     csvData: string;
     csvEnabled: boolean;
+    dataMode: DynamicDataMode;
+    spoolmanData: SpoolmanSpool[];
     show: boolean;
   }
 
-  let { labelProps, canvasCallback, printNow = false, csvData, csvEnabled, show = $bindable() }: Props = $props();
+  let {
+    labelProps,
+    canvasCallback,
+    printNow = false,
+    csvData,
+    csvEnabled,
+    dataMode,
+    spoolmanData,
+    show = $bindable(),
+  }: Props = $props();
 
   let previewCanvas: HTMLCanvasElement;
   let printState = $state<"idle" | "sending" | "printing">("idle");
@@ -53,7 +72,7 @@
   let statusTimer: NodeJS.Timeout | undefined = undefined;
   let error = $state<string>("");
   let detectedPrintTaskName: PrintTaskName | undefined = $printerClient?.getPrintTaskType();
-  let csvParsed: DSVRowArray<string>;
+  let pageVariables: Record<string, unknown>[] = [];
   let page = $state<number>(0);
   let pagesTotal = $state<number>(1);
   let offset = $state<PreviewPropsOffset>({ x: 0, y: 0, offsetType: "inner" });
@@ -260,20 +279,20 @@
   };
 
   const pageDown = () => {
-    if (!csvEnabled) {
+    if (pagesTotal <= 1) {
       page = 0;
       return;
     }
-    page = Math.max(0, Math.min(csvParsed.length - 1, page - 1));
+    page = Math.max(0, Math.min(pagesTotal - 1, page - 1));
     generatePreviewData(page);
   };
 
   const pageUp = () => {
-    if (!csvEnabled) {
+    if (pagesTotal <= 1) {
       page = 0;
       return;
     }
-    page = Math.min(csvParsed.length - 1, page + 1);
+    page = Math.min(pagesTotal - 1, page + 1);
     generatePreviewData(page);
   };
 
@@ -290,14 +309,12 @@
 
     await fabricTempCanvas.loadFromJSON(canvasCallback());
 
-    let variables = {};
+    let variables: Record<string, unknown> = {};
 
-    if (csvEnabled) {
-      if (page >= 0 && page < csvParsed.length) {
-        variables = csvParsed[page];
-      } else {
-        console.warn(`Page ${page} is out of csv bounds (csv length is ${csvParsed.length})`);
-      }
+    if (page >= 0 && page < pageVariables.length) {
+      variables = pageVariables[page];
+    } else if (pageVariables.length > 0) {
+      console.warn(`Page ${page} is out of variables bounds (length is ${pageVariables.length})`);
     }
 
     console.log("Page variables:", variables);
@@ -320,42 +337,52 @@
     fabricTempCanvas.dispose();
   };
 
+  const buildPageVariables = (): Record<string, unknown>[] => {
+    if (dataMode === "spoolman") {
+      return spoolmanData.map((spool) => spool as Record<string, unknown>);
+    }
+
+    if (dataMode !== "csv" || !csvEnabled) {
+      return [];
+    }
+
+    const parseResult = csvParse(csvData);
+    const spread: DSVRowArray<string> = Object.assign([], { columns: parseResult.columns });
+
+    for (const row of parseResult) {
+      for (const k of Object.keys(row)) {
+        row[k] = row[k].replaceAll("\\n", "\n");
+      }
+
+      let times = 1;
+
+      if ("$times" in row && row["$times"] !== "") {
+        try {
+          times = Number.parseInt(row["$times"], 10);
+        } catch (e) {
+          console.warn("$times parse error", e);
+        }
+      }
+
+      if (times < 0) {
+        times = 0;
+      }
+
+      for (let i = 0; i < times; i++) {
+        spread.push(row);
+      }
+    }
+
+    return spread as Record<string, unknown>[];
+  };
+
   const onModalClose = () => {
     endPrint();
   };
 
   onMount(async () => {
-    if (csvEnabled) {
-      const parseResult = csvParse(csvData);
-      const spread: DSVRowArray<string> = Object.assign([], { columns: parseResult.columns });
-
-      for (let row of parseResult) {
-        for (const k of Object.keys(row)) {
-          row[k] = row[k].replaceAll("\\n", "\n");
-        }
-
-        let times = 1;
-        
-        if ("$times" in row && row["$times"] !== "") {
-          try {
-            times = parseInt(row["$times"]);
-          } catch (e) {
-            console.warn("$times parse error", e);
-          }
-        }
-
-        if (times < 0) {
-          times = 0;
-        }
-
-        for (let i = 0; i < times; i++) {
-          spread.push(row);
-        }
-      }
-
-      csvParsed = spread;
-      pagesTotal = csvParsed.length;
-    }
+    pageVariables = buildPageVariables();
+    pagesTotal = Math.max(1, pageVariables.length);
 
     if (detectedPrintTaskName !== undefined) {
       console.log(`Detected print task version: ${detectedPrintTaskName}`);

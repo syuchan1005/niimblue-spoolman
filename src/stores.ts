@@ -2,6 +2,7 @@ import { get, readable, writable } from "svelte/store";
 import {
   AppConfigSchema,
   CsvParamsSchema,
+  SpoolmanConfigSchema,
   UserFontSchema,
   UserIconSchema,
   type CsvParams,
@@ -11,6 +12,7 @@ import {
   type AutomationProps,
   type ConnectionState,
   type ConnectionType,
+  type SpoolmanConfig,
 } from "$/types";
 import {
   NiimbotBluetoothClient,
@@ -49,6 +51,9 @@ export const ribbonRfidInfo = writable<RfidInfo | undefined>();
 export const printerMeta = writable<PrinterModelMeta | undefined>();
 export const heartbeatFails = writable<number>(0);
 export const csvData = writablePersisted<CsvParams>("csv_params", CsvParamsSchema, { data: CSV_DEFAULT });
+export const spoolmanConfig = writablePersisted<SpoolmanConfig>("spoolman_config", SpoolmanConfigSchema, {
+  baseUrl: "",
+});
 
 userFonts.subscribe(FileUtils.loadFonts);
 
